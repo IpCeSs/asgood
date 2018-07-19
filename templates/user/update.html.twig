@@ -1,0 +1,21 @@
+{% extends "base.html.twig" %}
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_row(form.firsName) }}
+    {{ form_row(form.lastName) }}
+    {{ form_row(form.password.first) }}
+    {{ form_row(form.password.second) }}
+
+    {{ form_end(form) }}
+
+
+
+
+
+    <a href="{{ path('home') }}">Go back Home</a>
+
+
+
+
+{% endblock %}

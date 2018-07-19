@@ -1,0 +1,61 @@
+version: '3.4'
+
+services:
+    web:
+        image: nginx:alpine
+        ports:
+            - "8000:80"
+        volumes:
+            - ./config/docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./config/docker/nginx/conf.d/:/etc/nginx/conf.d/:ro
+            - ./public:/scripts/public:ro
+        depends_on:
+            - fpm
+
+    fpm:
+        build: config/docker/php
+        user: '1000'
+        working_dir: /scripts
+        volumes:
+            - ./:/scripts:rw
+            - ./config/docker/php/local.conf.d/dev.ini:/usr/local/etc/php/conf.d/dev.ini
+        env_file:
+          - .env
+        depends_on:
+            - mysqlserver
+
+    composer:
+        build: config/docker/php
+        environment:
+            COMPOSER_CACHE_DIR: /scripts/var/cache/composer
+        volumes:
+          - ./:/scripts
+        working_dir: /scripts
+        user: '1000'
+        env_file:
+          - .env
+        entrypoint: ["/usr/local/bin/composer"]
+
+    mysqlserver:
+        image: mariadb:10.3.7
+        environment:
+            MYSQL_USER: symfony
+            MYSQL_PASSWORD: password
+            MYSQL_DATABASE: symfony
+            MYSQL_ROOT_PASSWORD: rootpassword
+        ports:
+            - 13306:3306
+        volumes:
+            - mysqlsymfonydata:/var/lib/mysql
+
+    adminer:
+        image: adminer:standalone
+        ports:
+            - "8080:8080"
+        depends_on:
+            - mysqlserver
+
+volumes:
+    mysqlsymfonydata:
+        external:
+            name: mysqlsymfonydata

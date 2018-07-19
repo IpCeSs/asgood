@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+
+    Hi {{ app.user.firsName }}
+
+{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+
+    <div class="example-wrapper">
+        <h1>Hello {{ app.user.firsName }} ✅</h1>
+
+        <h3> Dernières annonces publiées : </h3>
+        <ul>
+            <li>trotinette à moteur 10€
+            </li>
+            <li>chewingums Johnny 2500€ Paris
+            </li>
+        </ul>
+    </div>
+    <button><a href="{{ path('logOut') }}">Logout</a></button>
+    <button><a href="{{ url("user.update", {"user":app.user.id}) }}">Edit</a></button>
+{% endblock %}
