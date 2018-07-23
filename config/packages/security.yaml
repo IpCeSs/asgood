@@ -46,6 +46,8 @@ security:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY  }
         - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/home, roles: ROLE_USER }
+        - { path: ^/logout, roles: ROLE_USER}
+        - { path: ^/publishAd, roles: ROLE_USER}
         - { path: ^/update, roles: ROLE_USER }
         - { path: ^/public, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # ^/ DOIT TOURJOURS ETRE EN DERNIER

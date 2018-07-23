@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}publish your Ad!{% endblock %}
+
+{% block body %}
+    {% form_theme form 'bootstrap_4_layout.html.twig' %}
+    {% include 'navbar.html.twig' %}
+    <div class="container">
+
+        {{ form_start(form) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.category) }}
+        {{ form_row(form.price) }}
+        {{ form_row(form.shipping) }}
+        {{ form_row(form.image) }}
+
+
+        {{ form_end(form) }}
+
+
+    </div>
+{% endblock %}

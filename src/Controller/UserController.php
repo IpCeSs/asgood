@@ -54,16 +54,20 @@ class UserController extends Controller
     }
 
     /**
-     * @Route ("/update/{user}", name="user.update")
+     * @Route ("/update/{user}", name="user_update")
      */
-    public function update(EntityManagerInterface $em, User $user, Request $request)
+    public function update(EntityManagerInterface $em, User $user, Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
 
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        $user=$this->getUser();
         $form = $this->createForm(UserTYpe::class, $user)->add('save', SubmitType::class, ["label" => "Update"]);
         $form->handleRequest($request);
 
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $password = $passwordEncoder->encodePassword($user, $user->getPassword());
+            $user->setPassword($password);
             $em->flush();
             return $this->redirectToRoute("home");
         }

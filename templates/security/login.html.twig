@@ -1,25 +1,57 @@
 {% extends 'base.html.twig' %}
 
+
 {% block title %}Welcome log in!{% endblock %}
 
 {% block body %}
     {% if error %}
         <div>{{ error.messageKey|trans(error.messageData, 'login') }}</div>
     {% endif %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="#">As Good As New</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <form action="{{ path('login') }}" method="post">
-        <label for="username">Email or phone number</label>
-        <input type="text" id="username" name="_username" value="{{ last_username }}"/>
+        <div class="collapse navbar-collapse" id="navbarColor01">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ path('home') }}">Go to ads as guest<span
+                                class="sr-only">(current)</span></a>
+                </li>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" name="_password"/>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('user_registration') }}">Create an account</a>
+                </li>
 
-        {#
-            If you want to control the URL the user
-            is redirected to on success (more details below)
-            <input type="hidden" name="_target_path" value="/account" />
-        #}
+            </ul>
 
-        <button type="submit">login</button>
-    </form>
+        </div>
+    </nav><br>
+    <div class="container">
+        <form action="{{ path('login') }}" method="post">
+            <div class="form-group row">
+                <label for="username" class="col-sm-2 col-form-label">Email or phone number</label>
+                <div class="col-sm-10">
+                    <input type="text" id="username" class="form-control" name="_username"
+                           value="{{ last_username }}"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="password" class="col-sm-2 col-form-label">Password</label>
+                <div class="col-sm-10">
+                    <input type="password" id="password" class="form-control" name="_password"/>
+                </div>
+            </div>
+            {#
+                If you want to control the URL the user
+                is redirected to on success (more details below)
+                <input type="hidden" name="_target_path" value="/account" />
+            #}
+            <div align="center">
+                <button type="submit" class="btn btn-outline-success">login</button>
+            </div>
+        </form>
+    </div>
 {% endblock %}
