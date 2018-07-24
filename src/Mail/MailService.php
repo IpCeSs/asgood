@@ -9,7 +9,40 @@
 namespace App\Mail;
 
 
+use App\Entity\Ad;
+use App\Entity\User;
+
 class MailService
 {
+
+    private $mailer;
+
+    public function __construct(\Swift_Mailer $mailer)
+    {
+        $this->mailer = $mailer;
+
+    }
+
+
+    public function sendEmailAdEditionByAdmin( User $sender, User $receiver, Ad $adId){
+
+        $message = (new \Swift_Message('One of your ad was edited!'))
+            ->setFrom($sender->getEmail())
+            ->setTo($receiver->getEmail())
+            ->setBody('Your ad'. $adId->getTitle() .'was edited by our website administrator because it doesn\'t respect the rules of publishing of as good as new', 'text/html');
+
+        $this->mailer->send($message);
+    }
+
+    public function sendEmailAdDeletionByAdmin( User $sender, User $receiver, Ad $adId){
+
+
+        $message = (new \Swift_Message('WARNING your ad was deleted.'))
+            ->setFrom($sender->getEmail())
+            ->setTo($receiver->getEmail())
+            ->setBody('Your ad'. $adId->getTitle() .' was deleted beacause i wanted to! ', 'text/html');
+
+        $this->mailer->send($message);
+    }
 
 }

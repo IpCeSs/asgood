@@ -6,6 +6,7 @@ use App\Entity\Ad;
 use App\Entity\User;
 use App\Form\AdType;
 use App\Form\AdUpdateType;
+use App\Mail\MailService;
 use App\Repository\AdRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -79,9 +80,9 @@ class AdController extends Controller
      *
      * @Route ("/delete/{ad}", name="ad.delete")
      */
-    public function delete(Ad $ad)
+    public function delete(Ad $ad,  MailService $mailer)
     {
-
+        $admin = $this->getUser();
         $em = $this->getDoctrine()->getManager();
 
         $fileSystem = new Filesystem();
@@ -90,6 +91,9 @@ class AdController extends Controller
 
         $em->remove($ad);
         $em->flush();
+        if ($ad->getUser()->getId() != $admin->getId()) {
+            $mailer->sendEmailAdDeletionByAdmin($admin, $ad->getUser(), $ad);
+        }
         return $this->redirectToRoute("home");
     }
 
@@ -97,11 +101,13 @@ class AdController extends Controller
     /**
      * @Route ("/ad/update/{ad}", name="ad.update")
      */
-    public function update(EntityManagerInterface $em, Ad $ad, Request $request)
+    public function update(EntityManagerInterface $em, Ad $ad, Request $request, MailService $mailer)
     {
-        $oldImage=$ad->getImage();
+        $admin = $this->getUser();
+        dump($admin);
+        $oldImage = $ad->getImage();
         $form = $this->createForm(AdUpdateType::class, $ad)->add('save', SubmitType::class, ["label" => "Update"]);
-        dump($request);
+
 
         $form->handleRequest($request);
         $file = $form->get('image')->getData();
@@ -126,11 +132,18 @@ class AdController extends Controller
                 // updates the 'image' property to store the jpg file name
                 // instead of its contents
                 $ad->setImage($fileName);
-            }else{
+
+            } else {
                 $ad->setImage($oldImage);
             }
 
             $em->flush();
+            if ($ad->getUser()->getId() != $admin->getId()) {
+                $mailer->sendEmailAdEditionByAdmin($admin, $ad->getUser(), $ad);
+            }
+
+
+
             return $this->redirectToRoute("home");
         }
         return $this->render("/ad/update.html.twig", ["form" => $form->createView()]);
@@ -140,11 +153,10 @@ class AdController extends Controller
      * @Route("/myads/{user}", name="ad.myads")
      */
     public function myAds(AdRepository $adRepository, User $user)
-        {
-            $myAds = $adRepository->findByUser($user);
-            return $this->render("ad/myads.html.twig", ["myAds" => $myAds]);
-        }
-
+    {
+        $myAds = $adRepository->findByUser($user);
+        return $this->render("ad/myads.html.twig", ["myAds" => $myAds]);
+    }
 
 
 }
