@@ -1,0 +1,46 @@
+{% extends "base.html.twig" %}
+{% block body %}
+    {% include 'navbar.html.twig' %}
+    <div class="container">
+    <h3> Ads you published</h3>
+    <table class="table table-hover">
+        <tr class="table-warning">
+            <th></th>
+            <th>Title / date of publication</th>
+            <th>Description</th>
+            <th>Product category</th>
+            <th>Product location</th>
+
+            <th> Delete your ad</th>
+            <th> Update your ad</th>
+
+        </tr>
+        {% for myAd in myAds %}
+            <tr class="table-light">
+                <td><img src="{{ asset('uploads/images/'~myAd.image) }}" width="80%"/></td>
+                <td>  {{ myAd.title }}<br>
+                    {{ myAd.dateOfPublishing |date }}</td>
+
+                <td>{{ myAd.description }}</td>
+
+                <td>{{ myAd.category }}</td>
+                <td>{{ myAd.locale }}</td>
+
+
+                <td>
+                    <a onclick="return confirm('are you sure?');" type="button"
+                       class="btn btn-outline-danger" href="{{ url("ad.delete", {"ad":myAd.id}) }}">Delete
+                    </a>
+                </td>
+                <td>
+                    <a type="submit"
+                       class="btn btn-outline-warning" href="{{ url("ad.update", {"ad":myAd.id}) }}">Edit
+                    </a>
+
+                </td>
+
+            </tr>
+        {% endfor %}
+    </table>
+    </div>
+{% endblock %}

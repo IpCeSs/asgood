@@ -45,10 +45,11 @@ security:
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY  }
         - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/home, roles: ROLE_USER }
-        - { path: ^/logout, roles: ROLE_USER}
-        - { path: ^/publishAd, roles: ROLE_USER}
-        - { path: ^/update, roles: ROLE_USER }
+        - { path: ^/home, roles: [ROLE_USER, IS_AUTHENTICATED_ANONYMOUSLY, ROLE_ADMIN]}
+        - { path: ^/logout, roles: [ROLE_USER, ROLE_ADMIN]}
+        - { path: ^/publishAd, roles: [ROLE_USER, ROLE_ADMIN]}
+        - { path: ^/update, roles:[ROLE_USER, ROLE_ADMIN] }
+        - { path: ^/ad/update, roles: [ROLE_USER, ROLE_ADMIN]}
         - { path: ^/public, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # ^/ DOIT TOURJOURS ETRE EN DERNIER
         - { path: ^/, roles: ROLE_USER }

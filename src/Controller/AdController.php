@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Ad;
+use App\Entity\User;
 use App\Form\AdType;
+use App\Form\AdUpdateType;
+use App\Repository\AdRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -92,38 +95,56 @@ class AdController extends Controller
 
 
     /**
-     * @Route ("/update/{ad}", name="ad.update")
+     * @Route ("/ad/update/{ad}", name="ad.update")
      */
     public function update(EntityManagerInterface $em, Ad $ad, Request $request)
     {
         $oldImage=$ad->getImage();
-        $form = $this->createForm(AdType::class, $ad)->add('save', SubmitType::class, ["label" => "Update"]);
+        $form = $this->createForm(AdUpdateType::class, $ad)->add('save', SubmitType::class, ["label" => "Update"]);
+        dump($request);
+
         $form->handleRequest($request);
+        $file = $form->get('image')->getData();
 
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($file != null) {
+                $ad->setDateOfPublishing(new \DateTime());
+                //to delete old image that's gonna be replaced
+                $fileSystem = new Filesystem();
+                $fileSystem->remove($this->get('kernel')->getProjectDir() . '/public/uploads/images/' . $oldImage);
 
-            //to delete old image that's gonna be replaced
-            $fileSystem = new Filesystem();
-            $fileSystem->remove($this->get('kernel')->getProjectDir() . '/public/uploads/images/' . $oldImage);
+                // to set new image and record it in folder
 
-            // to set new image and record it in folder
-            $file = $form->get('image')->getData();
-            $fileName = $this->generateUniqueFileName() . '.' . $file->guessExtension();
-            // moves the file to the directory where images are stored (in service .yaml parameters)
-            $file->move(
-                $this->getParameter('images_directory'),
-                $fileName
-            );
+                $fileName = $this->generateUniqueFileName() . '.' . $file->guessExtension();
+                // moves the file to the directory where images are stored (in service .yaml parameters)
+                $file->move(
+                    $this->getParameter('images_directory'),
+                    $fileName
+                );
 
-            // updates the 'image' property to store the jpg file name
-            // instead of its contents
-            $ad->setImage($fileName);
+                // updates the 'image' property to store the jpg file name
+                // instead of its contents
+                $ad->setImage($fileName);
+            }else{
+                $ad->setImage($oldImage);
+            }
+
             $em->flush();
             return $this->redirectToRoute("home");
         }
         return $this->render("/ad/update.html.twig", ["form" => $form->createView()]);
     }
+
+    /**
+     * @Route("/myads/{user}", name="ad.myads")
+     */
+    public function myAds(AdRepository $adRepository, User $user)
+        {
+            $myAds = $adRepository->findByUser($user);
+            return $this->render("ad/myads.html.twig", ["myAds" => $myAds]);
+        }
+
 
 
 }

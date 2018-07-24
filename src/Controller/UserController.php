@@ -27,7 +27,7 @@ class UserController extends Controller
      * @Route("/register", name="user_registration")
      */
 
-    public function registerAction(Request $request, UserPasswordEncoderInterface $passwordEncoder)
+    public function registerAction(Request $request, UserPasswordEncoderInterface $passwordEncoder, \Swift_Mailer $mailer)
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user)->add("save", SubmitType::class, ["label" => "Create account"]);
@@ -42,6 +42,14 @@ class UserController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
+
+            //to send an email to the new user to confirm his registration
+            $message = (new \Swift_Message('Welcome to AsGoodAsNew !'))
+                ->setFrom('ceciliapigeolet@homail.fr')
+                ->setTo($user->getEmail())
+                ->setBody('You successfully signed up to AsGoodAsNew ! We are glad to have you with us ! You can now go find the best deals of your region!', 'text/html');
+
+            $mailer->send($message);
 
             return $this->redirectToRoute('login', ["userName"=> $user->getUsername()]);
 
@@ -68,8 +76,10 @@ class UserController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $password = $passwordEncoder->encodePassword($user, $user->getPassword());
             $user->setPassword($password);
+
+
             $em->flush();
-            return $this->redirectToRoute("home");
+            return $this->redirect("/{_locale}/home");
         }
         return $this->render("/user/update.html.twig", ["form" => $form->createView()]);
     }

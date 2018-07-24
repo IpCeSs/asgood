@@ -2,7 +2,7 @@
 
 {% block title %}
 
-    Hi {{ app.user.firsName }}
+    AsGoodAsNew | Home
 
 {% endblock %}
 
@@ -10,9 +10,13 @@
     {% include 'navbar.html.twig' %}
 
     <div class="container">
-        <h1 style="font-family: 'DejaVu Sans'">Welcome Back {{ app.user.firsName }}!</h1><br>
+        {% if is_granted('ROLE_USER') %}
+            <h1> Welcome Back {{ app.user.firsName }}!</h1><br>
+        {% else %}
+            <h1 style="font-family: 'DejaVu Sans'"> Welcome !</h1><br>
+        {% endif %}
 
-        <h3> Latest published ads</h3>
+        {% trans %}   <h3> Latest published ads</h3>    {% endtrans %}
         <table class="table table-hover">
             <tr class="table-warning">
                 <th></th>
@@ -20,35 +24,41 @@
                 <th>Description</th>
                 <th>Product category</th>
                 <th>Product location</th>
+                <th>Published by</th>
 
-                <th> Delete / Update</th>
+                <th> Delete your ad</th>
+                <th> Update your ad</th>
+
 
             </tr>
             {% for ad in ads %}
                 <tr class="table-light">
                     <td><img src="{{ asset('uploads/images/'~ad.image) }}" width="80%"/></td>
                     <td>  {{ ad.title }}<br>
-                        {{ ad.dateOfPublishing |date('d-m-y') }}</td>
+                        {{ ad.dateOfPublishing |date}}</td>
 
                     <td>{{ ad.description }}</td>
 
                     <td>{{ ad.category }}</td>
                     <td>{{ ad.locale }}</td>
-                    {% if app.user.id == ad.user.id %}
-                        <td>
-                            <a onclick="return confirm('are you sure?');" type="button"
-                               class="btn btn-outline-danger" href="{{ url("ad.delete", {"ad":ad.id}) }}">Delete
-                            </a>
-                        </td>
-                        <td>
-                            <a type="submit"
-                               class="btn btn-outline-warning" href="{{ url("ad.update", {"ad":ad.id}) }}">Edit
-                            </a>
-                            <a></a> {#">See product</a>#}
+                    <td>{{ ad.user.firsName }} {{ ad.user.lastName }}</td>
 
-                        </td>
-                    {% else %}
-                        <td>This ad belongs to someone else...</td>
+                    {% if ((is_granted('ROLE_USER')) and (app.user.id == ad.user.id) ) or (is_granted('ROLE_ADMIN')) %}
+                            <td>
+                                <a onclick="return confirm('are you sure?');" type="button"
+                                   class="btn btn-outline-danger" href="{{ url("ad.delete", {"ad":ad.id}) }}">Delete
+                                </a>
+                            </td>
+                            <td>
+                                <a type="submit"
+                                   class="btn btn-outline-warning" href="{{ url("ad.update", {"ad":ad.id}) }}">Edit
+                                </a>
+                                <a></a> {#">See product</a>#}
+
+                            </td>
+                        {% else %}
+                            <td>This ad belongs to someone else...</td>
+
                     {% endif %}
                 </tr>
             {% else %}
@@ -57,6 +67,7 @@
                 </tr>
             {% endfor %}
         </table>
+
     </div>
 
 

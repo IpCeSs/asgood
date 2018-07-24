@@ -4,6 +4,8 @@ namespace App\Form;
 
 use App\Entity\Ad;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -16,7 +18,7 @@ class AdUpdateType extends AbstractType
             ->add('description')
             ->add('price')
             ->add('shipping')
-            ->add('image', FileType::class, ['data_class'=>null], array('label'=>'Image (JPG)', 'required'   => false, 'empty_data' => ''))
+            ->add('image', FileType::class, ['data_class'=>null, 'required' => false ], array('label'=>'Image (JPG)'))
 
             ->add('category', ChoiceType::class, (array(
                 'choices' => (array(
