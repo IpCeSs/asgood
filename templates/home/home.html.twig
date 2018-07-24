@@ -2,36 +2,73 @@
 
 {% block title %}
 
-    Hi {{ app.user.firsName }}
+    AsGoodAsNew | Home
 
 {% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    {% include 'navbar.html.twig' %}
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
+    <div class="container">
+        {% if is_granted('ROLE_USER') %}
+            <h1> Welcome Back {{ app.user.firsName }}!</h1><br>
+        {% else %}
+            <h1 style="font-family: 'DejaVu Sans'"> Welcome !</h1><br>
+        {% endif %}
 
-    <div class="example-wrapper">
-        <h1>Hello {{ app.user.firsName }} ✅</h1>
+        {% trans %}   <h3> Latest published ads</h3>    {% endtrans %}
+        <table class="table table-hover">
+            <tr class="table-warning">
+                <th></th>
+                <th>Title / date of publication</th>
+                <th>Description</th>
+                <th>Product category</th>
+                <th>Product location</th>
+                <th>Published by</th>
 
-        <h3> Dernières annonces publiées : </h3>
-        <ul>
-            <li>trotinette à moteur 10€
-            </li>
-            <li>chewingums Johnny 2500€ Paris
-            </li>
-        </ul>
+                <th> Delete your ad</th>
+                <th> Update your ad</th>
+
+
+            </tr>
+            {% for ad in ads %}
+                <tr class="table-light">
+                    <td><img src="{{ asset('uploads/images/'~ad.image) }}" width="80%"/></td>
+                    <td>  {{ ad.title }}<br>
+                        {{ ad.dateOfPublishing |date}}</td>
+
+                    <td>{{ ad.description }}</td>
+
+                    <td>{{ ad.category }}</td>
+                    <td>{{ ad.locale }}</td>
+                    <td>{{ ad.user.firsName }} {{ ad.user.lastName }}</td>
+
+                    {% if ((is_granted('ROLE_USER')) and (app.user.id == ad.user.id) ) or (is_granted('ROLE_ADMIN')) %}
+                            <td>
+                                <a onclick="return confirm('are you sure?');" type="button"
+                                   class="btn btn-outline-danger" href="{{ url("ad.delete", {"ad":ad.id}) }}">Delete
+                                </a>
+                            </td>
+                            <td>
+                                <a type="submit"
+                                   class="btn btn-outline-warning" href="{{ url("ad.update", {"ad":ad.id}) }}">Edit
+                                </a>
+                                <a></a> {#">See product</a>#}
+
+                            </td>
+                        {% else %}
+                            <td>This ad belongs to someone else...</td>
+
+                    {% endif %}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3">No content available</td>
+                </tr>
+            {% endfor %}
+        </table>
+
     </div>
-    <button><a href="{{ path('logOut') }}">Logout</a></button>
-    <button><a href="{{ url("user.update", {"user":app.user.id}) }}">Edit</a></button>
+
+
 {% endblock %}
