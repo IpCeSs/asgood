@@ -19,22 +19,19 @@ class AdRepository extends ServiceEntityRepository
         parent::__construct($registry, Ad::class);
     }
 
-//    /**
-//     * @return Ad[] Returns an array of Ad objects
-//     */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return Ad[] Returns an array of Ad objects
+     */
+
+    public function findByTitle($value)
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('a.id', 'ASC')
-            ->setMaxResults(10)
+            ->andWhere('a.title LIKE :val OR a.description LIKE :val OR a.category LIKE :val OR a.locale LIKE :val' )
+            ->setParameter('val', '%' . $value . '%')
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
-    */
+
 
     /*
     public function findOneBySomeField($value): ?Ad

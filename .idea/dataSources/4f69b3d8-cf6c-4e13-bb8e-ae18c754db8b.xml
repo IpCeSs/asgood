@@ -1370,70 +1370,76 @@
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="339" parent="326" name="IDX_77E0ED58A76ED395">
+    <column id="339" parent="326" name="edited_by_admin">
+      <Position>11</Position>
+      <DataType>tinyint(1)|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <index id="340" parent="326" name="IDX_77E0ED58A76ED395">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="340" parent="326" name="PRIMARY">
+    <key id="341" parent="326" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="341" parent="326" name="FK_77E0ED58A76ED395">
+    <foreign-key id="342" parent="326" name="FK_77E0ED58A76ED395">
       <ColNames>user_id</ColNames>
       <RefSchemaName>symfony</RefSchemaName>
       <RefTableName>user</RefTableName>
       <RefColNames>id</RefColNames>
     </foreign-key>
-    <column id="342" parent="327" name="version">
+    <column id="343" parent="327" name="version">
       <Position>1</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="343" parent="327" name="PRIMARY">
+    <key id="344" parent="327" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>version</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="344" parent="328" name="id">
+    <column id="345" parent="328" name="id">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="345" parent="328" name="firs_name">
+    <column id="346" parent="328" name="firs_name">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="346" parent="328" name="last_name">
+    <column id="347" parent="328" name="last_name">
       <Position>3</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="347" parent="328" name="phone">
+    <column id="348" parent="328" name="phone">
       <Position>4</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="348" parent="328" name="email">
+    <column id="349" parent="328" name="email">
       <Position>5</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="349" parent="328" name="password">
+    <column id="350" parent="328" name="password">
       <Position>6</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="350" parent="328" name="roles">
+    <column id="351" parent="328" name="roles">
       <Position>7</Position>
       <Comment>(DC2Type:json_array)</Comment>
       <DataType>longtext|0s</DataType>
@@ -1441,19 +1447,28 @@
       <ColumnKind>normal</ColumnKind>
       <Collation>utf8mb4_bin</Collation>
     </column>
-    <index id="351" parent="328" name="user_email_uindex">
+    <index id="352" parent="328" name="user_email_uindex">
       <ColNames>email</ColNames>
       <Unique>1</Unique>
       <Type>btree</Type>
     </index>
-    <key id="352" parent="328" name="PRIMARY">
+    <index id="353" parent="328" name="UNIQ_8D93D64935C246D5">
+      <ColNames>password</ColNames>
+      <Unique>1</Unique>
+      <Type>btree</Type>
+    </index>
+    <key id="354" parent="328" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="353" parent="328" name="user_email_uindex">
+    <key id="355" parent="328" name="user_email_uindex">
       <ColNames>email</ColNames>
       <UnderlyingIndexName>user_email_uindex</UnderlyingIndexName>
+    </key>
+    <key id="356" parent="328" name="UNIQ_8D93D64935C246D5">
+      <ColNames>password</ColNames>
+      <UnderlyingIndexName>UNIQ_8D93D64935C246D5</UnderlyingIndexName>
     </key>
   </database-model>
 </dataSource>

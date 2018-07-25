@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Mail\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,10 +28,10 @@ class UserController extends Controller
      * @Route("/register", name="user_registration")
      */
 
-    public function registerAction(Request $request, UserPasswordEncoderInterface $passwordEncoder, \Swift_Mailer $mailer)
+    public function registerAction(Request $request, UserPasswordEncoderInterface $passwordEncoder, MailService $mailer)
     {
         $user = new User();
-        $form = $this->createForm(UserType::class, $user)->add("save", SubmitType::class, ["label" => "Create account"]);
+        $form = $this->createForm(UserType::class, $user)->add("save", SubmitType::class, ["label" => "Create account", 'attr'=>['class'=>'btn btn-outline-info'] ]);
 
 
         $form->handleRequest($request);
@@ -43,13 +44,8 @@ class UserController extends Controller
             $em->persist($user);
             $em->flush();
 
-            //to send an email to the new user to confirm his registration
-            $message = (new \Swift_Message('Welcome to AsGoodAsNew !'))
-                ->setFrom('ceciliapigeolet@homail.fr')
-                ->setTo($user->getEmail())
-                ->setBody('You successfully signed up to AsGoodAsNew ! We are glad to have you with us ! You can now go find the best deals of your region!', 'text/html');
-
-            $mailer->send($message);
+            //calls mailService  method to send email when user is registered correctly
+            $mailer->sendMailOnRegisterOK($user);
 
             return $this->redirectToRoute('login', ["userName"=> $user->getUsername()]);
 
@@ -69,7 +65,7 @@ class UserController extends Controller
 
         $this->denyAccessUnlessGranted('ROLE_USER');
         $user=$this->getUser();
-        $form = $this->createForm(UserTYpe::class, $user)->add('save', SubmitType::class, ["label" => "Update"]);
+        $form = $this->createForm(UserTYpe::class, $user)->add('save', SubmitType::class, ["label" => "Update",  'attr'=>['class'=>'btn btn-outline-info text-center'] ]);
         $form->handleRequest($request);
 
 
