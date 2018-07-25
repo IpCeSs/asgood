@@ -10,7 +10,9 @@ use App\Mail\MailService;
 use App\Repository\AdRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\Extension\Core\Type\SearchType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -18,6 +20,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class AdController extends Controller
 {
+
+
     /** @var Symfony\Component\HttpFoundation\File\UploadedFile $file */
     /**
      * @Route("/publishAdd", name="publish.add")
@@ -26,7 +30,7 @@ class AdController extends Controller
     {
 
         $ad = new Ad();
-        $form = $this->createForm(AdType::class, $ad)->add("save", SubmitType::class, ["label" => "Publish your ad"]);
+        $form = $this->createForm(AdType::class, $ad)->add("save", SubmitType::class, ["label" => "Publish your ad", 'attr'=>['class'=>'btn btn-outline-info text-center'] ]);
 
 
         $form->handleRequest($request);
@@ -35,6 +39,7 @@ class AdController extends Controller
             $ad->setDateOfPublishing(new \DateTime());
             // sets the user who posted the ad
             $ad->setUser($this->getUser());
+            $ad->setEditedByAdmin(false);
 
             // $file stores the uploaded jpg file
 
@@ -80,21 +85,27 @@ class AdController extends Controller
      *
      * @Route ("/delete/{ad}", name="ad.delete")
      */
-    public function delete(Ad $ad,  MailService $mailer)
+    public function delete(Ad $ad, MailService $mailer)
     {
-        $admin = $this->getUser();
-        $em = $this->getDoctrine()->getManager();
+        if (!$this->isGranted('edit', $ad)) {
+            return $this->redirectToRoute("home");
+        } else {
+            $admin = $this->getUser();
+            $em = $this->getDoctrine()->getManager();
 
-        $fileSystem = new Filesystem();
-        $filename = $ad->getImage();
-        $fileSystem->remove($this->get('kernel')->getProjectDir() . '/public/uploads/images/' . $filename);
+            $fileSystem = new Filesystem();
+            $filename = $ad->getImage();
+            $fileSystem->remove($this->get('kernel')->getProjectDir() . '/public/uploads/images/' . $filename);
 
-        $em->remove($ad);
-        $em->flush();
-        if ($ad->getUser()->getId() != $admin->getId()) {
-            $mailer->sendEmailAdDeletionByAdmin($admin, $ad->getUser(), $ad);
+            $em->remove($ad);
+            $em->flush();
+
+
+            if ($ad->getUser()->getId() != $admin->getId()) {
+                $mailer->sendEmailAdDeletionByAdmin($admin, $ad->getUser(), $ad);
+            }
+            return $this->redirectToRoute("home");
         }
-        return $this->redirectToRoute("home");
     }
 
 
@@ -103,50 +114,61 @@ class AdController extends Controller
      */
     public function update(EntityManagerInterface $em, Ad $ad, Request $request, MailService $mailer)
     {
-        $admin = $this->getUser();
-        dump($admin);
-        $oldImage = $ad->getImage();
-        $form = $this->createForm(AdUpdateType::class, $ad)->add('save', SubmitType::class, ["label" => "Update"]);
+        $editedByAdmin=$ad->getEditedByAdmin();
 
-
-        $form->handleRequest($request);
-        $file = $form->get('image')->getData();
-
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            if ($file != null) {
-                $ad->setDateOfPublishing(new \DateTime());
-                //to delete old image that's gonna be replaced
-                $fileSystem = new Filesystem();
-                $fileSystem->remove($this->get('kernel')->getProjectDir() . '/public/uploads/images/' . $oldImage);
-
-                // to set new image and record it in folder
-
-                $fileName = $this->generateUniqueFileName() . '.' . $file->guessExtension();
-                // moves the file to the directory where images are stored (in service .yaml parameters)
-                $file->move(
-                    $this->getParameter('images_directory'),
-                    $fileName
-                );
-
-                // updates the 'image' property to store the jpg file name
-                // instead of its contents
-                $ad->setImage($fileName);
-
-            } else {
-                $ad->setImage($oldImage);
-            }
-
-            $em->flush();
-            if ($ad->getUser()->getId() != $admin->getId()) {
-                $mailer->sendEmailAdEditionByAdmin($admin, $ad->getUser(), $ad);
-            }
-
-
-
+        if (!$this->isGranted('edit', $ad)) {
             return $this->redirectToRoute("home");
+        } else {
+            $admin = $this->getUser();
+
+            $oldImage = $ad->getImage();
+            $form = $this->createForm(AdUpdateType::class, $ad)->add('save', SubmitType::class, ["label" => "Update", 'attr'=>['class'=>'btn btn-outline-info text-center'] ]);
+
+
+            $form->handleRequest($request);
+            $file = $form->get('image')->getData();
+
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                if ($file != null) {
+                    $ad->setDateOfPublishing(new \DateTime());
+                    $ad->setEditedByAdmin(false);
+                    //to delete old image that's gonna be replaced
+                    $fileSystem = new Filesystem();
+                    $fileSystem->remove($this->get('kernel')->getProjectDir() . '/public/uploads/images/' . $oldImage);
+
+                    // to set new image and record it in folder
+
+                    $fileName = $this->generateUniqueFileName() . '.' . $file->guessExtension();
+                    // moves the file to the directory where images are stored (in service .yaml parameters)
+                    $file->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+
+                    // updates the 'image' property to store the jpg file name
+                    // instead of its contents
+                    $ad->setImage($fileName);
+                    if ($ad->getUser()->getId() != $admin->getId()) {
+                        $mailer->sendEmailAdEditionByAdmin($admin, $ad->getUser(), $ad);
+                        $editedByAdmin=$ad->setEditedByAdmin(true);
+                        return $editedByAdmin;
+                    }
+
+                } else {
+                    $ad->setImage($oldImage);
+                }
+
+                $em->flush();
+
+
+
+                return $this->redirectToRoute("home");
+
+            }
+            return $this->render("/ad/update.html.twig", ["form" => $form->createView(), 'editedByAdmin'=>$editedByAdmin]);
+
         }
-        return $this->render("/ad/update.html.twig", ["form" => $form->createView()]);
     }
 
     /**
@@ -155,7 +177,45 @@ class AdController extends Controller
     public function myAds(AdRepository $adRepository, User $user)
     {
         $myAds = $adRepository->findByUser($user);
+
         return $this->render("ad/myads.html.twig", ["myAds" => $myAds]);
+    }
+
+
+//    /**
+//     * @Route("/search", name="search")
+//     */
+//    public function search( AdRepository $adRepository, Request $request)
+//    {
+//        $form = $this->createFormBuilder()
+//            ->add('search', TextType::class)
+//            ->add("save", SubmitType::class, ["label" => "Search"])
+//            ->getForm();
+//
+//
+//
+////        $adRepository->findOneBySomeField($value);
+//        return $this->render("ad/search.html.twig", ["form" => $form->createView()]);
+//    }
+
+
+    /**
+     * @Route("/search", name="search")
+     *
+     */
+    public function searchResults(Request $request, AdRepository $adRepository)
+    {
+        $form = $this->createFormBuilder()
+            ->add('search', TextType::class)
+            ->add("save", SubmitType::class, ['attr'=>['class'=>'btn btn-outline-info text-center'] ])
+            ->getForm();
+        $form->handleRequest($request);
+
+        $searchBoxValue = $form->get('search')->getData();
+        $results=$adRepository->findByTitle($searchBoxValue);
+        dump($results);
+
+        return $this->render("ad/search.html.twig", ["form" => $form->createView(), 'results'=> $results]);
     }
 
 

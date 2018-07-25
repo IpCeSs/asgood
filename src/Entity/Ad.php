@@ -64,6 +64,11 @@ class Ad
      */
     private $locale;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $editedByAdmin;
+
     public function getId()
     {
         return $this->id;
@@ -173,6 +178,18 @@ class Ad
     public function setShipping(?string $shipping): self
     {
         $this->shipping = $shipping;
+
+        return $this;
+    }
+
+    public function getEditedByAdmin(): ?bool
+    {
+        return $this->editedByAdmin;
+    }
+
+    public function setEditedByAdmin(bool $editedByAdmin): self
+    {
+        $this->editedByAdmin = $editedByAdmin;
 
         return $this;
     }

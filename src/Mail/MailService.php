@@ -23,6 +23,16 @@ class MailService
 
     }
 
+    public function sendMailOnRegisterOK(User $receiver){
+        //to send an email to the new user to confirm his registration
+        $message = (new \Swift_Message('Welcome to AsGoodAsNew !'))
+            ->setFrom('admin@asgoodasnew.com')
+            ->setTo($receiver->getEmail())
+            ->setBody('You successfully signed up to AsGoodAsNew ! We are glad to have you with us ! You can now go find the best deals of your region!', 'text/html');
+
+        $this->mailer->send($message);
+    }
+
 
     public function sendEmailAdEditionByAdmin( User $sender, User $receiver, Ad $adId){
 
