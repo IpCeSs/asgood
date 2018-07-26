@@ -44,7 +44,9 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY  }
+        - { path: ^/ping/api, roles: IS_AUTHENTICATED_ANONYMOUSLY  }
         - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY  }
         - { path: ^/home, roles: [ROLE_USER, IS_AUTHENTICATED_ANONYMOUSLY, ROLE_ADMIN]}
         - { path: ^/search, roles: [ROLE_USER, IS_AUTHENTICATED_ANONYMOUSLY, ROLE_ADMIN]}
         - { path: ^/logout, roles: [ROLE_USER, ROLE_ADMIN]}

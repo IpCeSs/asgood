@@ -30,7 +30,7 @@ class AdController extends Controller
     {
 
         $ad = new Ad();
-        $form = $this->createForm(AdType::class, $ad)->add("save", SubmitType::class, ["label" => "Publish your ad", 'attr'=>['class'=>'btn btn-outline-info text-center'] ]);
+        $form = $this->createForm(AdType::class, $ad)->add("save", SubmitType::class, ["label" => "Publish your ad", 'attr' => ['class' => 'btn btn-outline-info text-center']]);
 
 
         $form->handleRequest($request);
@@ -114,7 +114,7 @@ class AdController extends Controller
      */
     public function update(EntityManagerInterface $em, Ad $ad, Request $request, MailService $mailer)
     {
-        $editedByAdmin=$ad->getEditedByAdmin();
+        $editedByAdmin = $ad->getEditedByAdmin();
 
         if (!$this->isGranted('edit', $ad)) {
             return $this->redirectToRoute("home");
@@ -122,7 +122,7 @@ class AdController extends Controller
             $admin = $this->getUser();
 
             $oldImage = $ad->getImage();
-            $form = $this->createForm(AdUpdateType::class, $ad)->add('save', SubmitType::class, ["label" => "Update", 'attr'=>['class'=>'btn btn-outline-info text-center'] ]);
+            $form = $this->createForm(AdUpdateType::class, $ad)->add('save', SubmitType::class, ["label" => "Update", 'attr' => ['class' => 'btn btn-outline-info text-center']]);
 
 
             $form->handleRequest($request);
@@ -149,24 +149,25 @@ class AdController extends Controller
                     // updates the 'image' property to store the jpg file name
                     // instead of its contents
                     $ad->setImage($fileName);
-                    if ($ad->getUser()->getId() != $admin->getId()) {
-                        $mailer->sendEmailAdEditionByAdmin($admin, $ad->getUser(), $ad);
-                        $editedByAdmin=$ad->setEditedByAdmin(true);
-                        return $editedByAdmin;
-                    }
+
 
                 } else {
                     $ad->setImage($oldImage);
                 }
 
-                $em->flush();
+                if ($ad->getUser()->getId() != $admin->getId()) {
+                    $mailer->sendEmailAdEditionByAdmin($admin, $ad->getUser(), $ad);
+                    $editedByAdmin = $ad->setEditedByAdmin(true);
 
+                }
+
+                $em->flush();
 
 
                 return $this->redirectToRoute("home");
 
             }
-            return $this->render("/ad/update.html.twig", ["form" => $form->createView(), 'editedByAdmin'=>$editedByAdmin]);
+            return $this->render("/ad/update.html.twig", ["form" => $form->createView(), 'editedByAdmin' => $editedByAdmin]);
 
         }
     }
@@ -181,24 +182,6 @@ class AdController extends Controller
         return $this->render("ad/myads.html.twig", ["myAds" => $myAds]);
     }
 
-
-//    /**
-//     * @Route("/search", name="search")
-//     */
-//    public function search( AdRepository $adRepository, Request $request)
-//    {
-//        $form = $this->createFormBuilder()
-//            ->add('search', TextType::class)
-//            ->add("save", SubmitType::class, ["label" => "Search"])
-//            ->getForm();
-//
-//
-//
-////        $adRepository->findOneBySomeField($value);
-//        return $this->render("ad/search.html.twig", ["form" => $form->createView()]);
-//    }
-
-
     /**
      * @Route("/search", name="search")
      *
@@ -206,16 +189,16 @@ class AdController extends Controller
     public function searchResults(Request $request, AdRepository $adRepository)
     {
         $form = $this->createFormBuilder()
-            ->add('search', TextType::class)
-            ->add("save", SubmitType::class, ['attr'=>['class'=>'btn btn-outline-info text-center'] ])
+            ->add('search', TextType::class, ['label' => ' '])
+            ->add("save", SubmitType::class, ['label' => 'Search', 'attr' => ['class' => 'btn btn-outline-info center-block']])
             ->getForm();
         $form->handleRequest($request);
 
         $searchBoxValue = $form->get('search')->getData();
-        $results=$adRepository->findByTitle($searchBoxValue);
+        $results = $adRepository->findByTitle($searchBoxValue);
         dump($results);
 
-        return $this->render("ad/search.html.twig", ["form" => $form->createView(), 'results'=> $results]);
+        return $this->render("ad/search.html.twig", ["form" => $form->createView(), 'results' => $results]);
     }
 
 

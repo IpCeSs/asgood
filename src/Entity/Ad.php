@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AdRepository")
  */
-class Ad
+class Ad implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -41,7 +41,6 @@ class Ad
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $image;
-
 
 
     /**
@@ -192,5 +191,31 @@ class Ad
         $this->editedByAdmin = $editedByAdmin;
 
         return $this;
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize()
+    {
+        return array(
+            "id" => $this->getId(),
+            "title" => $this->getTitle(),
+            "editedByAdmin" => $this->getEditedByAdmin(),
+            "user" => $this->getUser(),
+            "image" => $this->getImage(),
+            "locale" => $this->getLocale(),
+            "category"=>$this->getCategory(),
+            "shipping"=>$this->getShipping(),
+            "price"=>$this->getPrice(),
+            "dateOfPublication"=>$this->getDateOfPublishing(),
+            "description"=>$this->getDescription(),
+
+
+        );
     }
 }
